@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>BFS-Prover-V2</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://kit.fontawesome.com/f8ddf9854a.js" crossorigin="anonymous"></script>
+  <meta charset="utf-8">
+  <meta name="description" content="BFS-Prover-V2: A SoTA step-level theorem prover built for real use in Lean">
+  <meta name="keywords" content="BFS-Prover, Theorem Prover, Language Model, AI for Math, Lean4">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="./assets/doubao.png">
+  <link rel="apple-touch-icon" href="./assets/doubao.png">
+  <link rel="shortcut icon" type="image/png" href="./assets/doubao.png">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    @font-face {
+      font-family: 'Byte Sans';
+      src: url('./assets/ByteSans-Medium.ttf') format('truetype');
+      font-weight: 500;
+    }
+    @font-face {
+      font-family: 'Byte Sans';
+      src: url('./assets/ByteSans-Bold.ttf') format('truetype');
+      font-weight: 700;
+    }
+    
+    body {
+      font-family: 'Noto Sans', sans-serif;
+    }
+    
+    h1, h2, h3, h4, h5, h6, .title {
+      font-family: 'Byte Sans', 'Google Sans', sans-serif !important;
+    }
+    
+    code {
+      background-color: #f3f4f6;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-size: 0.9em;
+      color: #2E5AA8;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #e8f0fb 0%, #f8f9fa 100%);
+      color: #1f2937;
+    }
+    
+    .publication-title {
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 3.5rem !important;
+    }
+
+    .publication-subtitle {
+       font-family: 'Google Sans', sans-serif;
+       font-weight: 500;
+       color: #4b5563;
+       font-size: 2.0rem;
+    }
+
+    .publication-authors {
+      font-family: 'Google Sans', sans-serif;
+      color: #374151;
+      font-size: 1.25rem;
+    }
+    
+    .publication-authors a {
+      color: #374151;
+      text-decoration: none;
+    }
+    
+    .publication-authors a:hover {
+      color: #2E5AA8;
+    }
+    
+    .author-block {
+      display: inline-block;
+      margin: 0.1rem 0.5rem;
+    }
+    
+    .equal-contribution {
+      font-size: 1.0rem;
+      color: #6b7280;
+      margin-top: 0.5rem;
+    }
+    
+    .affiliations {
+      margin-top: 0.5rem;
+      font-size: 1.0rem;
+      color: #6b7280;
+    }
+
+    .publication-links {
+      margin-top: 1.5rem;
+    }
+
+    .badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.6rem 1.2rem;
+      background: #2E5AA8;
+      color: #fff;
+      text-decoration: none;
+      font-family: sans-serif;
+      font-size: 1rem;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .badge:hover {
+      background: #1e4a98;
+      transform: translateY(-2px);
+      color: #fff;
+    }
+    .badge svg,
+    .badge img {
+      width: 1.2em;
+      height: 1.2em;
+      margin-right: 0.5em;
+      fill: currentColor;
+    }
+
+    .key-achievements {
+      background: #ffffff;
+      border-radius: 1rem;
+      padding: 2.5rem;
+      box-shadow: 0 8px 16px rgba(10,10,10,0.05);
+      border: 1px solid #eee;
+    }
+    .key-achievements h2 {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2.5rem;
+      color: #1f2937;
+    }
+    .achievement-item {
+      text-align: center;
+      padding: 1rem;
+    }
+    .achievement-item .icon {
+      font-size: 2.5rem;
+      color: #2E5AA8;
+      margin-bottom: 1rem;
+    }
+    .achievement-item h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+    .achievement-item p {
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    
+    .section-title h2 {
+        font-family: 'Google Sans', sans-serif;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+    }
+    
+    .section-title p {
+        font-size: 1.1rem;
+        color: #666;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .results-figure {
+      margin: 2rem 0;
+    }
+    .results-figure img {
+      border-radius: 0.5rem;
+    }
+    .results-figure figcaption {
+      text-align: center;
+      font-size: 0.9em;
+      margin-top: 1rem;
+      color: #555;
+    }
+    
+    .method-card {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      border: 1px solid #e5e7eb;
+      height: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .method-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .method-card .icon {
+      font-size: 1.75rem;
+      color: #2E5AA8;
+      margin-right: 1rem;
+    }
+    
+    .method-card h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .downloads-table {
+      width: 100%;
+      margin-top: 1.5rem;
+      border-collapse: collapse;
+    }
+    .downloads-table th, .downloads-table td {
+      padding: 0.75rem 1rem;
+      border: 1px solid #e5e7eb;
+    }
+    .downloads-table th {
+      background-color: #f9fafb;
+      font-weight: 600;
+    }
+    
+    .leaderboard-table {
+        margin: 2rem auto;
+        width: 90%;
+    }
+
+    .leaderboard-table td:first-child {
+        font-weight: 600;
+    }
+    
+    .footer {
+      background-color: #363636;
+      color: #fff;
+    }
+    
+    .footer a {
+      color: #2E5AA8;
+    }
+    
+    pre code {
+      font-family: Menlo, Monaco, 'Courier New', monospace;
+    }
+
+    .video-container {
+      position: relative;
+      max-width: 100%;
+      background: #000;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .video-container video {
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+    }
+    
+    .step-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .step-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(46, 90, 168, 0.2);
+    }
+    
+    a:hover > div {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(46, 90, 168, 0.25) !important;
+    }
+    
+    a[href*="ollama.com/download"]:hover {
+      background: #1e4a98 !important;
+    }
+    
+    a[href*="ollama.com/zeyu-zheng"]:hover {
+      background: #2E5AA8 !important;
+      color: white !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(46, 90, 168, 0.3);
+    }
+
+    /* Mobile responsive styles for navbar */
+    @media screen and (max-width: 768px) {
+      .navbar .container {
+        transform: translateX(0) !important;
+        padding: 0.5rem !important;
+      }
+      
+      .navbar .container > div {
+        padding: 0.5rem 0.5rem !important;
+      }
+      
+      .navbar img {
+        height: 25px !important;
+        max-height: 25px !important;
+      }
+      
+      .navbar > div > div > div {
+        padding-left: 0.5rem !important;
+      }
+    }
+    
+    @media screen and (max-width: 480px) {
+      .navbar .container {
+        transform: translateX(0) !important;
+        padding: 0.25rem !important;
+      }
+      
+      .navbar .container > div {
+        padding: 0.25rem 0.25rem !important;
+        gap: 0.5rem;
+      }
+      
+      .navbar img {
+        height: 20px !important;
+        max-height: 20px !important;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="container" style="transform: translateX(-6rem);">
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0.5rem 1rem;">
+        <div style="display: flex; justify-content: flex-start; align-items: center;">
+          <img src="./assets/seed_logo.svg" alt="ByteDance Seed Logo" style="height: 35px;">
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center;">
+          <img src="./assets/cmu_logo.png" alt="CMU Logo" style="height: 40px;">
+        </div>
+        <div style="display: flex; justify-content: flex-end; align-items: center; padding-left: 1rem;">
+          <img src="./assets/pku_logo.png" alt="PKU Logo" style="height: 40px">
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title is-bold">
+              BFS-Prover-V2
+            </h1>
+            <h2 class="subtitle publication-subtitle">
+              A SoTA step-level theorem prover built for real use in Lean
+            </h2>
+            <div class="publication-authors">
+              <span class="author-block">Ran Xin<sup>*1</sup></span>
+              <span class="author-block"><a href="https://zeyu-zheng.github.io/" target="_blank">Zeyu Zheng</a><sup>*1,2</sup></span>
+              <span class="author-block">Yanchen Nie<sup>*1,3</sup></span>
+              <span class="author-block">Kun Yuan<sup>3</sup></span>
+              <span class="author-block">Xia Xiao<sup>1</sup></span>
+            </div>
+            <div class="equal-contribution">
+                <p><sup>*</sup> Equal contribution</p>
+            </div>
+            <div class="affiliations">
+                <p><sup>1</sup>ByteDance Seed &nbsp;&nbsp; <sup>2</sup>Carnegie Mellon University &nbsp;&nbsp; <sup>3</sup>Peking University</p>
+            </div>
+
+            <div class="badges">
+              <a href="https://arxiv.org/abs/2509.06493" class="badge" target="_blank" rel="noopener">
+                <img src="./assets/arxiv_logo.svg" alt="arXiv" style="width: 1.2em; height: 1.2em; margin-right: 0.5em;">
+                <span>Paper</span>
+              </a>
+              <a href="https://github.com/ByteDance-Seed/BFS-Prover-V2" class="badge" target="_blank" rel="noopener">
+                <img src="./assets/github_logo.svg" alt="GitHub" style="width: 1.2em; height: 1.2em; margin-right: 0.5em;">
+                <span>Code</span>
+              </a>
+              <a href="https://huggingface.co/collections/ByteDance-Seed/bfs-prover-68db961a5fdf9de045440230" class="badge" target="_blank" rel="noopener">
+                <img src="./assets/hf_logo.svg" alt="HuggingFace" style="width: 1.2em; height: 1.2em; margin-right: 0.5em;">
+                <span>Model</span>
+              </a>
+              <a href="https://github.com/zeyu-zheng/llmlean/tree/bfs-pr" class="badge" target="_blank" rel="noopener">
+                <img src="./assets/llmlean_logo.jpg" alt="LLMLean" style="border-radius: 2px;">
+                <span>LLMLean</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <br><br>
+
+  <!-- Highlights Section -->
+  <section style="max-width: 1100px; margin: 0 auto; padding: 1rem 1rem;">
+    <div style="margin-bottom: 1rem;">
+      <h2 class="title is-3" style="text-align: center; margin-bottom: 1rem;">Interactive Theorem Proving Done Right</h2>
+      <p style="font-size: 1rem; color: #4b5563; line-height: 1.8; max-width: 900px; margin: 0 auto; text-align: left;">
+        While whole-proof models dominate benchmarks, they tend to have less efficient inference, produce less natural proofs with deeply nested <code style="font-family: Menlo, Monaco, 'Courier New', monospace;">have</code> statements, face challenges with advanced tactic usage, and offer limited interactivity. Step-level provers generate one tactic at a time, enabling fast, tactically expressive, and interactive theorem proving in Lean.
+      </p>
+    </div>
+   
+    <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; margin: 0 auto; max-width: 900px;">
+      <a href="#benchmark-performance" style="text-decoration: none; color: inherit;">
+        <div style="background: #e8f0fb; color: #1f2937; border: 2px solid #2E5AA8; border-radius: 0; padding: 1rem 1.5rem; text-align: center; width: 280px; height: 200px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;">
+          <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0rem; color: #2E5AA8;">miniF2F</div>
+          <div style="font-size: 1.9rem; font-weight: 700; margin-bottom: 0rem; color: #2E5AA8;">95.08%</div>
+          <div style="font-size: 0.8rem; margin-bottom: 1rem; color: #4b5563;">on par w/ best whole-proof models</div>
+          <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0rem; color: #2E5AA8;">ProofNet</div>
+          <div style="font-size: 1.9rem; font-weight: 700; margin-bottom: 0rem; color: #2E5AA8;">41.4%</div>
+          <div style="font-size: 0.8rem; color: #4b5563;">setting a new <span style="font-weight: 600;">SoTA</span></div>
+        </div>
+      </a>
+      
+      <a href="#technical-overview" style="text-decoration: none; color: inherit;">
+        <div style="background: #e8f0fb; color: #1f2937; border: 2px solid #2E5AA8; border-radius: 0; padding: 1rem 1.5rem; text-align: center; width: 280px; height: 200px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;">
+          <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0rem; color: #2E5AA8;">miniF2F</div>
+          <div style="font-size: 1.9rem; font-weight: 700; margin-bottom: 0rem; color: #2E5AA8;">+19.3%</div>
+          <div style="font-size: 0.8rem; margin-bottom: 1rem; color: #4b5563;">w/ Planner</div>
+          <div style="font-size: 1.9rem; font-weight: 700; margin-bottom: 0rem; color: #2E5AA8;">+10.3%</div>
+          <div style="font-size: 0.8rem; margin-bottom: 0rem; color: #4b5563;">Pure Tree Search</div>
+          <div style="font-size: 0.8rem; color: #6b7280;">over previous best step-level prover</div>
+        </div>
+      </a>
+      
+      <a href="#getting-started" style="text-decoration: none; color: inherit;">
+        <div style="background: #e8f0fb; color: #1f2937; border: 2px solid #2E5AA8; border-radius: 0; padding: 1rem 1.5rem; text-align: center; width: 280px; height: 200px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;">
+          <div style="display: flex; justify-content: center; align-items: center; gap: 2.5rem; margin-bottom: 0.5rem;">
+            <span style="font-size: 3rem;">💻</span>
+            <img src="./assets/ollama.png" alt="Ollama" style="height: 52.5px;">
+          </div>
+          <div style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: #2E5AA8;">Use on your own laptop</div>
+          <div style="font-size: 0.8rem; line-height: 1.5; color: #4b5563;">
+            Real-time tactic suggestions in Lean<br>via Ollama and LLMLean
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Demo Video Section -->
+  <section class="section" style="background-color: #ffffff;">
+    <div class="container is-max-desktop">
+        <h2 class="title is-3 has-text-centered">Live Demo in Lean</h2>
+        <div class="video-container">
+          <video controls>
+            <source src="./assets/demo.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <p class="has-text-centered" style="margin-top: 1.5rem; font-size: 1rem; color: #6b7280;">
+            Watch BFS-Prover-V2 in action on a personal laptop with LLMLean integration in VS Code
+        </p>
+    </div>
+  </section>
+  
+  <section class="section" style="background: linear-gradient(to bottom, #f8fbff 0%, #ffffff 100%);">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Introduction</h2>
+          <div class="content has-text-justified">
+            <p>
+              We introduce <strong>BFS-Prover-V2</strong>, the state-of-the-art open-source step-level theorem proving system for Lean4, designed to address the dual challenges of scaling both training and inference in neural theorem proving. Building upon the foundation of BFS-Prover-V1, our approach introduces significant improvements that enable sustained learning over extended training periods and efficient exploration of complex proof spaces.
+            </p>
+            <p>
+              BFS-Prover-V2 introduces novel solutions through: <strong>(1) Training-time scaling</strong>: A novel multi-stage expert iteration framework with adaptive tactic-level data filtering and periodic retraining to surmount the performance plateaus that typically curtail long-term post training; <strong>(2) Inference-time scaling</strong>: A planner-enhanced multi-agent tree search system for hierarchical reasoning that scales performance at inference time.
+            </p>
+            <p>
+              BFS-Prover-V2 achieves <strong>95.08%</strong> and <strong>41.4%</strong> on the miniF2F and ProofNet test sets respectively, setting a new state-of-the-art for step-level provers.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="section" id="technical-overview" style="background: #ffffff;">
+    <div class="container is-max-desktop">
+        <h2 class="title is-3 has-text-centered">Technical Overview</h2>
+        
+        <!-- Training Section -->
+        <div style="margin-top: 3rem;">
+          <h3 class="title is-4" style="color: #2E5AA8; margin-bottom: 1.5rem;">Scaling up Training: Multi-Stage Expert Iteration</h3>
+          
+          <div class="columns is-centered">
+            <div class="column is-10">
+              <figure class="results-figure">
+                <img src="./assets/train.svg" alt="Training Pipeline" style="width: 100%; background: white;">
+                <figcaption>
+                    Training-time scaling architecture
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+          
+          <div style="margin-top: 0rem; max-width: 900px; margin-left: auto; margin-right: auto;">
+            <p style="font-size: 1.0rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem;">
+              A central challenge in scaling expert iteration is managing vast quantities of synthetic data while avoiding diminishing returns and mode collapse. We introduce two key innovations:
+            </p>
+            
+            <div style="display: grid; gap: 1.5rem;">
+              <div style="border-left: 4px solid #2E5AA8; padding-left: 1.5rem; background: #f8fbff; padding: 1.25rem 1.5rem; border-radius: 0 8px 8px 0;">
+                <h4 style="font-size: 1.15rem; font-weight: 600; color: #1f2937; margin-bottom: 0.75rem;">Adaptive Tactic Filtering</h4>
+                <p style="font-size: 1rem; line-height: 1.7; color: #4b5563;">
+                  Instead of coarse problem-level filtering, we adopt fine-grained tactic-level filtering guided by perplexity distribution. We filter out both <strong>low-perplexity tactics</strong> (overly simple, no learning signal) and <strong>high-perplexity tactics</strong> (noisy or suboptimal). This acts as automated curriculum learning, using the model's own uncertainty to identify valuable training data.
+                </p>
+              </div>
+              
+              <div style="border-left: 4px solid #78DED4; padding-left: 1.5rem; background: #f0fdfc; padding: 1.25rem 1.5rem; border-radius: 0 8px 8px 0;">
+                <h4 style="font-size: 1.15rem; font-weight: 600; color: #1f2937; margin-bottom: 0.75rem;">Periodic Retraining: Escaping Local Optima</h4>
+                <p style="font-size: 1rem; line-height: 1.7; color: #4b5563;">
+                  When the model plateaus after several expert iterations, we perform a "soft reset": <strong>(1)</strong> Use the current best prover to re-synthesize and de-noise all past proofs; <strong>(2)</strong> Retrain a fresh model from scratch on the refined dataset. This temporarily drops performance but increases exploration capacity, allowing the model to surpass previous peaks.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inference Section -->
+        <div style="margin-top: 4rem;">
+          <h3 class="title is-4" style="color: #2E5AA8; margin-bottom: 1.5rem;">Scaling up Inference: Planner-Enhanced Multi-Agent Search</h3>
+          
+          <div class="columns is-centered">
+            <div class="column is-10">
+              <figure class="results-figure">
+                <img src="./assets/inference.svg" alt="Inference Architecture" style="width: 100%; background: white;">
+                <figcaption>
+                    Inference-time scaling architecture
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+          
+          <div style="margin-top: 0rem; max-width: 900px; margin-left: auto; margin-right: auto;">
+            <p style="font-size: 1.0rem; line-height: 1.8; color: #374151; margin-bottom: 1.5rem;">
+              Our hierarchical inference architecture mirrors how human mathematicians work: sketch a high-level plan, then fill in details. It consists of two key components:
+            </p>
+            
+            <div style="display: grid; gap: 1.5rem;">
+              <div style="border-left: 4px solid #2E5AA8; padding-left: 1.5rem; background: #f8fbff; padding: 1.25rem 1.5rem; border-radius: 0 8px 8px 0;">
+                <h4 style="font-size: 1.15rem; font-weight: 600; color: #1f2937; margin-bottom: 0.75rem;">Planner-Guided Search</h4>
+                <p style="font-size: 1rem; line-height: 1.7; color: #4b5563;">
+                  The <strong>planner</strong> (a general-purpose reasoning LLM) decomposes the main theorem into a sequence of intermediate subgoals. The <strong>prover</strong> (our specialized model) solves subgoals sequentially via tree search. If a subgoal fails, the planner is re-queried to generate a revised plan that corrects the strategy.
+                </p>
+              </div>
+              
+              <div style="border-left: 4px solid #78DED4; padding-left: 1.5rem; background: #f0fdfc; padding: 1.25rem 1.5rem; border-radius: 0 8px 8px 0;">
+                <h4 style="font-size: 1.15rem; font-weight: 600; color: #1f2937; margin-bottom: 0.75rem;">Parallel Provers & Shared Subgoal Cache</h4>
+                <p style="font-size: 1rem; line-height: 1.7; color: #4b5563;">
+                  Multiple prover agents work in parallel on a single subgoal at a time. Once the first agent finds a proof, all others immediately terminate to prevent redundant computation. Proven subgoals are cached and used as known facts in subsequent proofs.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </section>
+  
+  <section class="section" id="benchmark-performance" style="background: linear-gradient(to bottom, #ffffff 0%, #f8fbff 100%);">
+    <div class="container is-max-desktop">
+        <h2 class="title is-3 has-text-centered">Benchmark Performance</h2>
+        <p class="has-text-centered mb-5">
+            Robust and generalizable performance across domains
+        </p>
+
+        <table class="table is-fullwidth is-striped leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>miniF2F-test</th>
+                    <th>miniF2F-valid</th>
+                    <th>ProofNet-test</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background-color: #e8f0fb;">
+                    <td>BFS-Prover-V2-32B w/ Planner</td>
+                    <td>95.08%</td>
+                    <td>95.5%</td>
+                    <td>—</td>
+                </tr>
+                <tr style="background-color: #e8f0fb;">
+                    <td>BFS-Prover-V2-32B</td>
+                    <td>86.1%</td>
+                    <td>85.5%</td>
+                    <td>41.4%</td>
+                </tr>
+                <tr style="background-color: #e8f0fb;">
+                    <td>BFS-Prover-V2-7B</td>
+                    <td>82.4%</td>
+                    <td>—</td>
+                    <td>—</td>
+                </tr>
+            </tbody>
+        </table>
+        <figcaption class="has-text-centered" style="margin-top: 1rem; color: #666; font-size: 0.9em;">
+            Benchmark performance of BFS-Prover-V2 series
+        </figcaption>
+    </div>
+  </section>
+
+  <section class="section" id="getting-started" style="background: linear-gradient(to bottom, #f8fbff 0%, #ffffff 100%);">
+    <div class="container" style="max-width: 1500px;">
+        <h2 class="title is-3 has-text-centered">Getting Started</h2>
+        <p class="has-text-centered mb-5" style="font-size: 1.0rem; color: #4b5563;">Use BFS-Prover-V2 in Lean via LLMLean</p>
+        <div style="overflow-x: auto; padding: 0.5rem 0;">
+            <div style="display: flex; gap: 1.5rem; min-width: max-content; justify-content: center; padding: 0 1rem;">
+                <div class="step-card" style="background: white; padding: 1.5rem; border: 2px solid #e5e7eb; border-radius: 0; width: 480px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <h4 class="title is-5 has-text-centered" style="color: #2E5AA8; margin-bottom: 1rem;">1. Install Ollama & Pull Model</h4>
+                    <div style="margin-bottom: 1rem; text-align: center;">
+                      <a href="https://ollama.com/download" target="_blank" 
+                      style="display: inline-flex; align-items: center; gap: 0.6rem;
+                            background: #2E5AA8; color: white; font-weight: 600;
+                            padding: 0.7rem 1.4rem; border-radius: 9999px;
+                            text-decoration: none; font-size: 1.1rem;
+                            transition: background 0.2s ease, transform 0.2s ease;">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" 
+                            style="width: 1.4rem; height: 1.4rem;">
+                        <path fill-rule="evenodd" 
+                              d="M10 3a.75.75 0 0 1 .75.75v7.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V3.75A.75.75 0 0 1 10 3Zm-6 11.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1-.75-.75Z" 
+                              clip-rule="evenodd" />
+                      </svg>
+                      Download Ollama
+                    </a>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 1rem;">
+                      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="https://ollama.com/zeyu-zheng/BFS-Prover-V2-7B" target="_blank" 
+                           style="display: inline-flex; align-items: center; gap: 0.5rem;
+                                  background: white; color: #2E5AA8; font-weight: 600;
+                                  padding: 0.5rem 1rem; border: 2px solid #2E5AA8; border-radius: 0;
+                                  text-decoration: none; font-size: 0.8rem;
+                                  transition: all 0.2s ease;">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" 
+                               style="width: 1rem; height: 1rem;">
+                            <path fill-rule="evenodd" 
+                                  d="M10 3a.75.75 0 0 1 .75.75v7.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V3.75A.75.75 0 0 1 10 3Zm-6 11.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1-.75-.75Z" 
+                                  clip-rule="evenodd" />
+                          </svg>
+                          BFS-Prover-V2-7B
+                        </a>
+                        <a href="https://ollama.com/zeyu-zheng/BFS-Prover-V2-32B" target="_blank" 
+                           style="display: inline-flex; align-items: center; gap: 0.5rem;
+                                  background: white; color: #2E5AA8; font-weight: 600;
+                                  padding: 0.5rem 1rem; border: 2px solid #2E5AA8; border-radius: 0;
+                                  text-decoration: none; font-size: 0.8rem;
+                                  transition: all 0.2s ease;">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" 
+                               style="width: 1rem; height: 1rem;">
+                            <path fill-rule="evenodd" 
+                                  d="M10 3a.75.75 0 0 1 .75.75v7.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V3.75A.75.75 0 0 1 10 3Zm-6 11.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75a.75.75 0 0 1-.75-.75Z" 
+                                  clip-rule="evenodd" />
+                          </svg>
+                          BFS-Prover-V2-32B
+                        </a>
+                      </div>
+                    </div>
+                    <div class="content">
+                        <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">Example using 7B model (q8_0 quantization):</p>
+                        <pre style="background: #f9fafb; padding: 1rem; border-radius: 0; border: 1px solid #e5e7eb; margin-bottom: 0;"><code style="font-family: Menlo, Monaco, 'Courier New', monospace; font-size: 0.8rem; color: #1f2937;">ollama pull zeyu-zheng/BFS-Prover-V2-7B:q8_0</code></pre>
+                    </div>
+                </div>
+                
+                <div class="step-card" style="background: white; padding: 1.5rem; border: 2px solid #e5e7eb; border-radius: 0; width: 480px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <h4 class="title is-5 has-text-centered" style="color: #2E5AA8; margin-bottom: 1rem;">2. Add LLMLean to Lean Project</h4>
+                    <div class="content">
+                        <pre style="background: #f9fafb; padding: 0.8rem; border-radius: 0; border: 1px solid #e5e7eb; margin-bottom: 0;"><code style="font-family: Menlo, Monaco, 'Courier New', monospace; font-size: 0.75rem; color: #1f2937; line-height: 1.4;">-- lakefile.lean
+require llmlean from git
+  "https://github.com/zeyu-zheng/llmlean.git"
+  @ "bfs-pr"
+
+# or lakefile.toml
+[[require]]
+name = "llmlean"
+git = "https://github.com/zeyu-zheng/llmlean.git"
+rev = "bfs-pr"</code></pre>
+                    </div>
+                </div>
+                
+                <div class="step-card" style="background: white; padding: 1.5rem; border: 2px solid #e5e7eb; border-radius: 0; width: 480px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <h4 class="title is-5 has-text-centered" style="color: #2E5AA8; margin-bottom: 1rem;">3. Configure LLMLean</h4>
+                    <div class="content">
+                      <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">Example using 7B model (q8_0 quantization):</p>
+                        <pre style="background: #f9fafb; padding: 0.8rem; border-radius: 0; border: 1px solid #e5e7eb; margin-bottom: 0;"><code style="font-family: Menlo, Monaco, 'Courier New', monospace; font-size: 0.75rem; color: #1f2937; line-height: 1.4;"># ~/.config/llmlean/config.toml
+api = "ollama"
+model = "zeyu-zheng/BFS-Prover-V2-7B:q8_0"
+mode = "parallel"
+prompt = "tacticstate"
+responseFormat = "tactic"
+numSamples = "5"</code></pre>
+                    </div>
+                </div>
+                
+                <div class="step-card" style="background: white; padding: 1.5rem; border: 2px solid #e5e7eb; border-radius: 0; width: 480px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <h4 class="title is-5 has-text-centered" style="color: #2E5AA8; margin-bottom: 1rem;">4. Use in Lean</h4>
+                    <div class="content">
+                        <pre style="background: #f9fafb; padding: 0.8rem; border-radius: 0; border: 1px solid #e5e7eb; margin-bottom: 0;"><code style="font-family: Menlo, Monaco, 'Courier New', monospace; font-size: 0.75rem; color: #1f2937; line-height: 1.4;">import Mathlib
+import LLMlean
+
+example : ... := by
+  llmstep ""  -- Get suggestions for next tactic
+  -- or
+  llmstep "rw"  -- Get suggestions for using `rw` next</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="has-text-centered" style="margin-top: 1.5rem;">
+            <p style="font-size: 0.9rem; color: #9ca3af;">
+                Scroll horizontally to see all steps
+            </p>
+        </div>
+    </div>
+  </section>
+
+  <section class="section" id="BibTeX" style="background: #ffffff;">
+    <div class="container is-max-desktop content">
+      <h2 class="title is-3 has-text-centered">Citation</h2>
+      <pre><code style="font-family: Menlo, Monaco, 'Courier New', monospace;">@article{xin2025scaling,
+  title={Scaling up Multi-Turn Off-Policy RL and Multi-Agent Tree Search for LLM Step-Provers},
+  author={Xin, Ran and Zheng, Zeyu and Nie, Yanchen and Yuan, Kun and Xiao, Xia},
+  journal={arXiv preprint arXiv:2509.06493},
+  year={2025}
+}</code></pre>
+    </div>
+  </section>
+
+  <footer class="footer" style="padding: 1.5rem 0;">
+    <div class="container">
+      <div class="content has-text-centered">
+        <p style="margin: 0;">
+          Licensed under the <a href="https://github.com/ByteDance-Seed/BFS-Prover-V2/blob/main/LICENSE" style="color: #2E5AA8;">Apache License 2.0</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar burger menu toggle
+    document.addEventListener('DOMContentLoaded', () => {
+      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+      if ($navbarBurgers.length > 0) {
+        $navbarBurgers.forEach( el => {
+          el.addEventListener('click', () => {
+            const target = el.dataset.target;
+            const $target = document.getElementById(target);
+            el.classList.toggle('is-active');
+            $target.classList.toggle('is-active');
+          });
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>
